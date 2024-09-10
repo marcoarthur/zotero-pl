@@ -2,6 +2,7 @@ package MyApp::Roles::FullTextSearch;
 use Moose::Role;
 use Mojo::Collection qw(c);
 use feature qw(signatures);
+use List::Util qw(any);
 use DDP;
 
 our $DEBUG_FTS = 1;
@@ -47,7 +48,16 @@ sub fts_info($self) {
 # all possible text columns for fts
 sub _text_cols($self) {
   my $info = $self->source->columns_info;
+  my @pks = $self->source->primary_columns;
+  # select text data_type
   my @text_cols = grep { $info->{$_}{data_type} =~ /text/i } keys %$info;
+
+  # but remove any primary keys
+  my %cols;
+  @cols{@text_cols} = ();
+  delete @cols{@pks}; @text_cols = keys %cols;
+
+  p @text_cols if $DEBUG_FTS;
   return c(@text_cols);
 }
 
