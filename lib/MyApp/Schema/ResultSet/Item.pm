@@ -168,4 +168,7 @@ sub with_annotations($self) {
 }
 
 with qw/MyApp::Roles::Prefetch MyApp::Roles::CommonSense MyApp::Roles::RxPage/;
+
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);
+
 1;

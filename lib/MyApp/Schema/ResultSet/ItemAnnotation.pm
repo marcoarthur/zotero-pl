@@ -3,7 +3,6 @@ use Moose;
 use feature qw(signatures);
 extends 'DBIx::Class::ResultSet';
 
-with qw( MyApp::Roles::Prefetch MyApp::Roles::CommonSense MyApp::Roles::RxPage);
 
 sub after_date($self, $date) {
   my $dtf = $self->result_source->schema->storage->datetime_parser;
@@ -58,5 +57,31 @@ sub from_book_id($self, $book_id) {
     }
   );
 }
+
+sub with_annotated_item($self) {
+  return $self->search_rs(
+    undef,
+    {
+      prefetch => [ {parentitemid => 'parentitemid'} ],
+      collapse => 1,
+    }
+  );
+}
+
+sub with_parent_item_id($self) {
+  return $self->search_rs(
+    undef,
+    {
+      join      => [ qw/parentitemid/ ],
+      '+select' => [ qw/parentitemid.parentitemid/ ],
+      '+as'     => [ qw/parent_id/ ],
+    }
+  );
+}
+
+with qw/
+MyApp::Roles::Prefetch MyApp::Roles::CommonSense MyApp::Roles::RxPage
+MyApp::Roles::FullTextSearch
+/;
 
 1;
