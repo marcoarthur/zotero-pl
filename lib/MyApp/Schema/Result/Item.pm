@@ -431,6 +431,13 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
+__PACKAGE__->belongs_to(
+  "annotation",
+  "MyApp::Schema::Result::ItemAnnotation",
+  { "foreign.itemid" => "self.itemid" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 with qw/ MyApp::Roles::AsHash MyApp::Roles::ExtraColumn/;
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
