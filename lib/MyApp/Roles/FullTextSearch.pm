@@ -26,7 +26,7 @@ has fts_targets => (
   is      => 'rw',
   isa     => 'ArrayRef[Str]',
   lazy    => 1,
-  default => sub ($self){ $self->text_cols },
+  default => sub ($self){ $self->_text_cols },
 );
 
 has result_limit => (
@@ -45,7 +45,7 @@ sub fts_info($self) {
 }
 
 # all possible text columns for fts
-sub text_cols($self) {
+sub _text_cols($self) {
   my $info = $self->source->columns_info;
   my @text_cols = grep { $info->{$_}{data_type} =~ /text/i } keys %$info;
   return c(@text_cols);
@@ -85,13 +85,11 @@ sub _do_search_fts($self, $query) {
   my $pks = join ",", $self->source->primary_columns;
   my $cols = $self->fts_targets;
   my $where = join ' OR ', map { "${_}_fts MATCH '$query'" } @{$self->fts_targets};
-  my $limit = $self->result_limit;
 
   my $stm = <<~"SQL";
     SELECT  $pks
     FROM    $fts
     WHERE   $where
-    LIMIT   $limit
   SQL
   p $stm if $DEBUG_FTS;
 
@@ -100,7 +98,7 @@ sub _do_search_fts($self, $query) {
   my $ids = c();
 
   while(my $row = $sth->fetchrow_arrayref){
-    push @$ids, $row;
+    push @$ids, [@$row] ;
   }
 
   $ids = $ids->uniq;
