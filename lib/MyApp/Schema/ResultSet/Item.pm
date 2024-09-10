@@ -133,10 +133,10 @@ sub words($self) {
   );
 }
 
-sub books($self) {
+sub of_type($self, $type) {
   return $self->search_rs(
     {
-      'type.typename' => { -like => [ qw/%book%/ ] },
+      'type.typename' => { -like => $type },
     },
     {
       prefetch => [ qw/type/ ],
@@ -145,16 +145,27 @@ sub books($self) {
   );
 }
 
-sub with_annotations($self) {
-  return $self->search_rs(
-    { 
-      'item_annotation.text' => { '!=' => undef }
-    },
-    {
-      prefetch => [ qw/item_annotation/],
-    }
-  )
+sub books($self) {
+  return $self->of_type('book');
 }
 
-with qw( MyApp::Roles::Prefetch MyApp::Roles::CommonSense MyApp::Roles::RxPage);
+sub with_annotations($self) {
+  my $annons = $self->result_source->schema->resultset('ItemAnnotation')
+  ->search_rs(
+    undef,
+    {
+      join      => [ qw/parentitemid/ ],
+      '+select' => [ qw/parentitemid.parentitemid/ ],
+      '+as'     => [ qw/item_id/ ],
+    }
+  );
+
+  return $self->search_rs(
+    { 
+      'me.itemid' => { -in => $annons->get_column('item_id')->as_query },
+    },
+  );
+}
+
+with qw/MyApp::Roles::Prefetch MyApp::Roles::CommonSense MyApp::Roles::RxPage/;
 1;
