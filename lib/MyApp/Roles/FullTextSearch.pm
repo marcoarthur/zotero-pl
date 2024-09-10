@@ -73,7 +73,7 @@ sub fts($self, $query) {
   my @pks = $self->source->primary_columns;
   my %q;
   for(my $i = 0; $i < @pks; $i++) {
-    $q{$pks[$i]} = $ids->map(sub { $_->[$i] })->to_array;
+    $q{'me.' . $pks[$i]} = $ids->map(sub { $_->[$i] })->to_array;
   }
   p %q if $DEBUG_FTS;
   
