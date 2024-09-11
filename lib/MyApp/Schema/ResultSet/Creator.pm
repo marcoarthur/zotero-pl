@@ -1,10 +1,8 @@
 package MyApp::Schema::ResultSet::Creator;
-use strict;
-use warnings;
+use Moose;
 use feature qw(signatures);
-use base 'DBIx::Class::ResultSet';
+extends 'DBIx::Class::ResultSet';
 use DateTime;
-#with 'Throwable';
 
 sub by_subject($self, $subject) {
   # TODO: check subject
@@ -70,5 +68,7 @@ sub by_type($self, $type) {
 #     }
 #   )
 # }
+
+with qw/MyApp::Roles::CommonSense MyApp::Roles::Prefetch/;
 
 1;
