@@ -68,6 +68,11 @@ sub with_annotated_item($self) {
   );
 }
 
+sub from_item($self, $item_id) {
+  return $self->with_annotated_item
+  ->search_rs( { 'parentitemid_2.itemid' => $item_id } );
+}
+
 sub with_parent_item_id($self) {
   return $self->search_rs(
     undef,
