@@ -5,6 +5,14 @@ use feature qw(signatures);
 use DBIx::Class::ResultClass::HashRefInflator;
 use DDP;
 
+has date_formatter => (
+  is      => 'ro',
+  isa     => 'DateTime::Format::SQLite',
+  default => sub ($self) {
+    $self->result_source->schema->storage->datetime_parser;
+  },
+);
+
 requires qw(search_rs result_source);
 
 sub not_null($self, $column) {
