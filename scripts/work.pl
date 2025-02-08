@@ -26,6 +26,8 @@ my $new_mods = $left->map(
   }
 );
 
+my @roles = qw(MyApp::Roles::Prefetch MyApp::Roles::CommonSense);
+
 $new_mods->each(
   sub ($mod, $idx) {
     my $code =<<~"EOC";
@@ -33,7 +35,7 @@ $new_mods->each(
     use Moose;
     use feature qw(signatures);
     extends 'DBIx::Class::ResultSet';
-    with qw/ MyApp::Roles::Prefetch MyApp::Roles::CommonSense /;
+    with qw/ @roles /;
     1;
     EOC
 
